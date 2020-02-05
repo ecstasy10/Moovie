@@ -20,58 +20,89 @@ function request(url) {
     })
 }
 
-function carrousel() {
-    var randNames = ["house%20of%20cards", "scarface", "pulp%20fiction"]
+function carousel() {
     //console.log(randNames[Math.floor(Math.random() * 2)])
-    let rand = 'https://api.themoviedb.org/3/movie/550?api_key=e9d8b222a57983dac6baa7919533097e&language=en-US'
-    //https://api.themoviedb.org/3/movie/550/images?api_key=e9d8b222a57983dac6baa7919533097e&language=en-US
-    console.log(rand)
-    const randPromise = request(rand)
-    randPromise
+    
+    let movie = 'https://api.themoviedb.org/3/movie/popular?api_key=e9d8b222a57983dac6baa7919533097e&language=en-US&page=1'
+    //console.log(movie)
+    const moviePromise = request(movie)
+    moviePromise
         .then(function printRand(json){
 
             let movie = JSON.parse(json)
-            console.log(movie)
-            console.log(movie.homepage.poster_path)
-            var img = '<img src="https://image.tmdb.org/t/p/original' + movie.poster_path + '" class="card-img-top">'
-            var text = movie.overview
-            document.getElementById("show").innerHTML = img
-            /*
+            console.log(movie.results)
+            
+            const result = movie.results[0];
             let div = document.createElement("div")
             div.className = "carousel-item active"
             let img = document.createElement("img")
-            img.src = movie.poster_path
+            img.src = "https://image.tmdb.org/t/p/original" + result.backdrop_path
             img.className = "d-block w-100"
+            let caption = document.createElement("div")
+            caption.className = "carousel-caption d-none d-md-block"
+            let h5 = document.createElement("h5")
+            h5.textContent = result.original_title
+            h5.className = "bg-light text-dark"
+            caption.appendChild(h5)
+            div.appendChild(caption)
             div.appendChild(img)
-            document.getElementById("carousel").appendChild(div)*/
+            document.getElementById("carousel-inner").appendChild(div)
+
+            for (let i = 1; i < movie.results.length; i++) {
+                const result = movie.results[i];
+                let div = document.createElement("div")
+                div.className = "carousel-item"
+                let img = document.createElement("img")
+                img.src = "https://image.tmdb.org/t/p/original" + result.backdrop_path
+                img.className = "d-block w-100"
+                let caption = document.createElement("div")
+                caption.className = "carousel-caption d-none d-md-block"
+                let h5 = document.createElement("h5")
+                h5.textContent = result.original_title
+                h5.className = "bg-light text-dark"
+                caption.appendChild(h5)
+                div.appendChild(caption)
+                div.appendChild(img)
+                document.getElementById("carousel-inner").appendChild(div)
+            }
+            
+
         })
         .catch(function handleErrors(error) {
             console.log("Error here!!")
         })
 }
 
-window.onload = carrousel()
-/*
-const postGet = 'http://www.omdbapi.com/?apikey=83d6daf5&t=house%20of%20cards'
-const myPromise = request(postGet)
-//console.log("Will be pending when logged", myPromise)
-
-myPromise
-    .then(function printPosts(json) {
-        console.log('Resolve Found!!')
-        
-        var list = JSON.parse(json)
-        //posts.forEach(post => console.log(post));
-        console.log(list)
-        var img = '<img src="' + list.Poster + '" class="card-img-top" alt="' + list.Title + '">';
-        document.getElementById("img").innerHTML = img
-        document.getElementById("card-title").textContent = list.Title
-        document.getElementById("card-title").textContent += " (" +list.Year+ ")"
-        document.getElementById("card-text").textContent = list.Plot
-    })
-    .catch(function handleErrors(error) {
-        console.log("Error here!!")
-    })
 
 
-*/
+window.onload = carousel()
+
+function search(movieName) {
+    let movieSearch = 'https://api.themoviedb.org/3/search/movie/?api_key=e9d8b222a57983dac6baa7919533097e&language=es-ES&query='
+    let movie = movieSearch + movieName    
+    const moviePromise = request(movie)
+
+    moviePromise
+        .then(function printPosts(json) {
+            console.log('Resolve Found!!')
+            var search = JSON.parse(json)
+
+            console.log(search.results[0])
+            
+            var img = '<img src="https://image.tmdb.org/t/p/original' + search.results[0].poster_path + '" class="card-img-top">';
+            document.getElementById("img").innerHTML = img
+            document.getElementById("card-title").textContent = search.results[0].title
+            let date = search.results[0].release_date
+            document.getElementById("card-title").textContent += " (" + date.slice(0, 4) + ")"
+            document.getElementById("card-text").textContent = search.results[0].overview
+        })
+        .catch(function handleErrors(error) {
+            console.log("Error here!!")
+        })
+}
+
+
+document.getElementById("search").onsubmit = function () {
+    let searchText = document.getElementById("searchText").value
+    search(searchText)
+}
