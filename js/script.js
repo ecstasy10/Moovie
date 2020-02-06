@@ -166,6 +166,7 @@ function search(name) {
 
 
 document.getElementById("search").onsubmit = function () {
+    event.preventDefault()
     let searchText = document.getElementById("searchText").value
     search(searchText)
 }
